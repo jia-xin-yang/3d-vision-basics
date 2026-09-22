@@ -216,3 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Day 2 练习产物（可再生，不入库）---
+day02/ex4_output/
