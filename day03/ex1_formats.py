@@ -27,7 +27,7 @@ zz[bump] += 0.2
 
 # 拼成点云的标准身材 (N*N, 3)
 points = np.stack([xx, yy, zz], axis=-1).reshape(-1, 3)
-print("点云形状:", points.shape)     # 预期 (400, 3)
+print("点云形状:", points.shape)     # 预期 (40000, 3)
 print("dtype:", points.dtype)        # 预期 float64
 
 # ===== 2. 存成四种格式 =====
