@@ -219,3 +219,9 @@ __marimo__/
 
 # --- Day 2 练习产物（可再生，不入库）---
 day02/ex4_output/
+
+# --- Day 3 点云/高度图产物（脚本可再生，不入库）---
+day03/*.npy
+day03/*.pcd
+day03/*.ply
+day03/*.xyz

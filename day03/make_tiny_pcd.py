@@ -1,0 +1,21 @@
+lines = [
+    "# .PCD v0.7",
+    "VERSION 0.7",
+    "FIELDS x y z",
+    "SIZE 4 4 4",
+    "TYPE F F F",
+    "COUNT 1 1 1",
+    "WIDTH 5",
+    "HEIGHT 1",
+    "VIEWPOINT 0 0 0 1 0 0 0",
+    "POINTS 5",
+    "DATA ascii",
+    "0 0 0",
+    "1 0 0",
+    "0 1 0",
+    "0 0 1",
+    "1 1 1",
+]
+with open("tiny.pcd", "w") as f:
+    f.write("\n".join(lines) + "\n")
+print("written", len(lines), "lines")
