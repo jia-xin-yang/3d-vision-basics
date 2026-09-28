@@ -3,7 +3,20 @@
 Learning repo: industrial 3D vision inspection + edge AI + embodied perception.
 Stage 1: 3D vision basics —— 从 2D 图像基础到 3D 点云质检最小闭环。
 
-带练进度：Day 1 环境搭建 ✅ → Day 2 数字图像基础 ✅ → Day 3 点云质检流水线 ✅ → Day 4 真实数据集（待开工）
+![Python](https://img.shields.io/badge/Python-3.10-3776AB?logo=python&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.1.2-EE4C2C?logo=pytorch&logoColor=white)
+![Open3D](https://img.shields.io/badge/Open3D-0.18.0-000000)
+![OpenCV](https://img.shields.io/badge/OpenCV-4.8.1-5C3EE8?logo=opencv&logoColor=white)
+![NumPy](https://img.shields.io/badge/NumPy-1.24.3-013243?logo=numpy&logoColor=white)
+
+带练进度：Day 1 环境搭建 ✅ → Day 2 数字图像基础 ✅ → Day 3 点云质检流水线 ✅ → Day 4 真实数据集 🚧（练习 1-2 完成）
+
+## 成果预览
+
+| Day 2 · Canny 边缘 | Day 3 · 缺陷检测 | Day 4 · 体素降采样 |
+| :-: | :-: | :-: |
+| ![day02](day02/ex2_q2_compare.png) | ![day03](day03/ex4_defect.png) | ![day04](day04/ex2_downsample_compare.png) |
+| 高斯平滑：外置 vs 内生对照 | 双阈值分割划痕/凸起（像素→mm²） | Stanford Bunny 35947 → 15897 点 |
 
 ## 目录结构
 
@@ -26,7 +39,26 @@ Stage 1: 3D vision basics —— 从 2D 图像基础到 3D 点云质检最小闭
 - `ex*_*.png` 交付图（入库）
 - 数据产物（`plate.*` / `clean_pts.npy` / `heightmap.npy`，脚本可再生）已 gitignore
 
-## Day 3 复跑顺序（依赖链，缺产物就从第一步补）
+### `day04/` — 真实数据集：Stanford Bunny
+
+- `ex1_bunny_to_pcd.py` 三角网格→点云：下载校验 → 顶点/面片体检 → 面积加权均匀采样 200 点 → 数学不变量断言 → npy+pcd 双落盘
+- `make_bunny_full.py` 网格顶点全量落盘 `bunny_full.ply`（ex2 的输入，确定性可再生）
+- `ex2_bunny_preprocess.py` 真实数据预处理：bbox 尺度体检 → voxel_size 三档扫描（1/2/5mm → 34583/15897/3023 点）→ 2mm 定稿 + 统计滤波（-394）→ npy 落盘
+- 数据产物（`bunny_*.npy/pcd/ply`，脚本可再生）已 gitignore
+
+## 复跑顺序（依赖链，缺产物就从第一步补）
+
+### Day 4（首跑需联网下载 BunnyMesh，之后走 `~/open3d_data/` 缓存）
+
+```bash
+conda activate industrial3d
+cd day04
+python ex1_bunny_to_pcd.py      # BunnyMesh → bunny_pts.npy / bunny.pcd（200 点采样）
+python make_bunny_full.py       # BunnyMesh 顶点全量 → bunny_full.ply（ex2 输入）
+python ex2_bunny_preprocess.py  # bunny_full.ply → 体素降采样+统计滤波 → bunny_down/clean.npy
+```
+
+### Day 3
 
 ```bash
 conda activate industrial3d
