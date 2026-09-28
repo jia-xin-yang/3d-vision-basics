@@ -225,3 +225,8 @@ day03/*.npy
 day03/*.pcd
 day03/*.ply
 day03/*.xyz
+
+# --- Day 4 真实数据集产物（脚本可再生，不入库）---
+day04/*.npy
+day04/*.pcd
+day04/*.ply
