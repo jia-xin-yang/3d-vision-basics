@@ -230,3 +230,9 @@ day03/*.xyz
 day04/*.npy
 day04/*.pcd
 day04/*.ply
+
+# --- repro 复现线产物（脚本可再生，不入库）---
+repro/*.npy
+repro/**/*.npy
+repro/**/*.pcd
+repro/**/*.ply
