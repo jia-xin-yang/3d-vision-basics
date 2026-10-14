@@ -12,7 +12,7 @@ Stage 2: 论文复现线 —— MVTec 3D-AD 数据集上复现 Real3D-AD / Reg3D
 
 带练进度：Day 1 环境搭建 ✅ → Day 2 数字图像基础 ✅ → Day 3 点云质检流水线 ✅ → Day 4 真实数据集 ✅ → Day 5 点云配准 ICP（待开工）
 
-复现线：阶段 0 数据集就位 ✅ → 阶段 1 数据探查 ✅（任务 1-5）→ 阶段 2 BTF 简化版（任务 1-4 ✅：bagel 图像级 AUROC 0.992，任务 5 收官脚本就绪）→ 阶段 3 Reg3D-AD 完整版（待开工）→ 观察题：2.5D 盲区 vs 3D 分数差
+复现线：阶段 0 数据集就位 ✅ → 阶段 1 数据探查 ✅（任务 1-5）→ 阶段 2 BTF 简化版 ✅ 全收官（bagel：图像 AUROC 0.992 / 像素 AUROC 0.990 / PRO 0.952 / test F1 0.966）→ 阶段 3 Reg3D-AD 完整版（待开工）→ 观察题：2.5D 盲区 vs 3D 分数差
 
 ## 成果预览
 
@@ -21,10 +21,10 @@ Stage 2: 论文复现线 —— MVTec 3D-AD 数据集上复现 Real3D-AD / Reg3D
 | ![day02](day02/ex2_q2_compare.png) | ![day03](day03/ex4_defect.png) | ![day04](day04/ex2_downsample_compare.png) |
 | 高斯平滑：外置 vs 内生对照 | 双阈值分割划痕/凸起（像素→mm²） | Stanford Bunny 35947 → 15897 点 |
 
-| 阶段 1 · GT 轮廓叠加 | 阶段 2 · FPFH 初接触 | 阶段 2 · AUROC 分布图 |
-| :-: | :-: | :-: |
-| ![repro-s1](repro/stage01_data_explore/ex04_bagel_crack_overlay.png) | ![repro-s2](repro/stage02_btf_baseline/ex01_fpfh_first_contact.png) | ![repro-s3](repro/stage02_btf_baseline/ex04_score_distributions.png) |
-| rgb 照片 + GT 轮廓对齐验证 | 平面剥离 → voxel → 法线 → 33 维指纹 | score_mean 重叠 vs top1% 分离 |
+| 阶段 1 · GT 轮廓叠加 | 阶段 2 · FPFH 初接触 | 阶段 2 · AUROC 分布图 | 阶段 2 · 定位图 |
+| :-: | :-: | :-: | :-: |
+| ![repro-s1](repro/stage01_data_explore/ex04_bagel_crack_overlay.png) | ![repro-s2](repro/stage02_btf_baseline/ex01_fpfh_first_contact.png) | ![repro-s3](repro/stage02_btf_baseline/ex04_score_distributions.png) | ![repro-s4](repro/stage02_btf_baseline/ex05_localization_panel.png) |
+| rgb 照片 + GT 轮廓对齐验证 | 平面剥离 → voxel → 法线 → 33 维指纹 | score_mean 重叠 vs top1% 分离 | 热力亮斑咬住 GT 绿线（定位） |
 
 ## 目录结构
 
@@ -71,7 +71,7 @@ Stage 2: 论文复现线 —— MVTec 3D-AD 数据集上复现 Real3D-AD / Reg3D
   - `ex02_memory_bank.py` 记忆库：bagel 前 30 张 train/good → 479344×33 float32（60MB，已 gitignore）；法线"朝相机"全局朝向约定（跨图可比）
   - `ex03_knn_retrieval.py` kNN 检索：6 查询双统计量（score_mean / score_top1%）完全分离；contamination 几何盲区实证
   - `ex04_eval_auroc.py` 全测试集评测：bagel 110 张，手写秩法 AUROC，双统计量对决 + 分数分布图（**top1% 0.9923 vs mean 0.7794**，稀释机制全量平反）
-  - `ex05_localize_pro.py` 收官：逐点分数画回原图（定位图）+ 像素级 AUROC + PRO（等权逐连通区召回）+ validation 标定阈值 → test 混淆矩阵
+  - `ex05_localize_pro.py` 收官：逐点分数画回原图（定位图）+ 像素级 AUROC **0.9903** + PRO **0.9515**（等权逐连通区召回）+ validation 标定阈值（40.97，FPR 分辨率 1/22）→ test 混淆矩阵 **F1 0.966**
 - 数据产物（`*.npy` / `*.csv` 中的大数据）按"可再生"原则 gitignore
 
 ## 复跑顺序（依赖链，缺产物就从第一步补）
