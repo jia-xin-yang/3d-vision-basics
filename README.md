@@ -12,7 +12,7 @@ Stage 2: 论文复现线 —— MVTec 3D-AD 数据集上复现 Real3D-AD / Reg3D
 
 带练进度：Day 1 环境搭建 ✅ → Day 2 数字图像基础 ✅ → Day 3 点云质检流水线 ✅ → Day 4 真实数据集 ✅ → Day 5 点云配准 ICP（待开工）
 
-复现线：阶段 0 数据集就位 ✅ → 阶段 1 数据探查 ✅（任务 1-5）→ 阶段 2 BTF 简化版 ✅ 全收官（bagel：图像 AUROC 0.992 / 像素 AUROC 0.990 / PRO 0.952 / test F1 0.966）→ 阶段 3 Reg3D-AD 完整版（待开工）→ 观察题：2.5D 盲区 vs 3D 分数差
+复现线：阶段 0 数据集就位 ✅ → 阶段 1 数据探查 ✅（任务 1-5）→ 阶段 2 BTF 简化版 ✅ 全收官（bagel：图像 AUROC 0.992 / 像素 AUROC 0.990 / PRO 0.952 / test F1 0.966）→ 阶段 3 Reg3D-AD 完整版 ▶（任务 1 Coreset ✅：0.5% 预算 200 倍压缩打平全量库，随机小预算高方差实证；任务 2 打分三选一 ✅：裸 max 噪声尾巴崩盘，式 3 权重值域锁死 [0.8,1) 代数发现；任务 3 十类全量评测进行中）→ 观察题：2.5D 盲区 vs 3D 分数差 → 阶段 4：Real3D-AD 12 类真身复现（已立项）
 
 ## 成果预览
 
@@ -25,6 +25,11 @@ Stage 2: 论文复现线 —— MVTec 3D-AD 数据集上复现 Real3D-AD / Reg3D
 | :-: | :-: | :-: | :-: |
 | ![repro-s1](repro/stage01_data_explore/ex04_bagel_crack_overlay.png) | ![repro-s2](repro/stage02_btf_baseline/ex01_fpfh_first_contact.png) | ![repro-s3](repro/stage02_btf_baseline/ex04_score_distributions.png) | ![repro-s4](repro/stage02_btf_baseline/ex05_localization_panel.png) |
 | rgb 照片 + GT 轮廓对齐验证 | 平面剥离 → voxel → 法线 → 33 维指纹 | score_mean 重叠 vs top1% 分离 | 热力亮斑咬住 GT 绿线（定位） |
+
+| 阶段 3 · Coreset 曲线 | 阶段 3 · 打分三选一 |
+| :-: | :-: |
+| ![repro-s5](repro/stage03_reg3d_full/ex01_coreset_curve.png) | ![repro-s6](repro/stage03_reg3d_full/ex02_scoring_compare.png) |
+| 0.5% 预算贴平全量参照线，随机小预算高方差 | 裸 max 崩盘 vs top1% 全程在线 |
 
 ## 目录结构
 
@@ -72,9 +77,23 @@ Stage 2: 论文复现线 —— MVTec 3D-AD 数据集上复现 Real3D-AD / Reg3D
   - `ex03_knn_retrieval.py` kNN 检索：6 查询双统计量（score_mean / score_top1%）完全分离；contamination 几何盲区实证
   - `ex04_eval_auroc.py` 全测试集评测：bagel 110 张，手写秩法 AUROC，双统计量对决 + 分数分布图（**top1% 0.9923 vs mean 0.7794**，稀释机制全量平反）
   - `ex05_localize_pro.py` 收官：逐点分数画回原图（定位图）+ 像素级 AUROC **0.9903** + PRO **0.9515**（等权逐连通区召回）+ validation 标定阈值（40.97，FPR 分辨率 1/22）→ test 混淆矩阵 **F1 0.966**
+- `stage03_reg3d_full/` 阶段 3 Reg3D-AD 完整版（Coreset → 式 1-2 打分 → 10 类全量）：
+  - `ex01_coreset_bagel.py` Coreset 核心集：手写贪心 k-center（平方距离展开 matvec 提速）× 6 预算 × {k-center, 随机} 对照；**0.5%（2396 点）AUROC 0.9923 打平全量库**（200 倍压缩零损失），随机小预算高方差实证
+  - `ex02_max_scoring_bagel.py` 打分三选一：式 1-2 裸 max vs 式 3 加权 vs top1% × {全量, coreset} 6 格全交叉；**裸 max 崩盘至 0.84**（噪声尾巴：good/005 单点 146.25 冤案），**w 值域锁死 [1−1/b, 1) 代数发现**（wmax≈max 的必然）
+  - `ex03_ten_class_run.py` 10 类全量评测：10 类 × {全量库, 0.5% coreset} × {top1%, max} 40 格；空物体图跳过清单落盘（dowel 被 10mm 阈值灭门：库仅 15 点）；cable_gland/cookie 上 coreset 反超全量（消融表 8 实证）
 - 数据产物（`*.npy` / `*.csv` 中的大数据）按"可再生"原则 gitignore
 
 ## 复跑顺序（依赖链，缺产物就从第一步补）
+
+### 复现线 stage03（依赖 stage02 建库产物 ex02_memory_bank_bagel.npy）
+
+```bash
+conda activate industrial3d
+cd repro/stage03_reg3d_full
+python ex01_coreset_bagel.py      # coreset 曲线：6 预算 × {k-center, 随机}（~50min，贪心为主）
+python ex02_max_scoring_bagel.py  # 打分 6 格：式1-2 裸 max / 式3 加权 / top1%（~7min）
+python ex03_ten_class_run.py      # 10 类 40 格（~2-3h；foam/tire 库大点密最慢，workers=-1 多核）
+```
 
 ### 复现线 stage02（需数据集；先 ex02 建库，后 ex03/ex04 检索评测）
 
