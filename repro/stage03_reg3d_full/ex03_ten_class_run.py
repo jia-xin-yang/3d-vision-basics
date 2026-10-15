@@ -147,18 +147,21 @@ def main():
                     'coreset_top1pct', 'coreset_max'])
         w.writerows(img_rows)
 
-    # 分组柱状图：每类 4 根（full/core × top1/max）
+    # 分组柱状图：每类 4 根（full/core × top1/max），带数值标签
     fig, ax = plt.subplots(figsize=(13, 5))
     x = np.arange(len(class_rows))
     w = 0.2
     series = [(6, 'full+top1%', '#1f77b4'), (7, 'coreset+top1%', '#2ca02c'),
               (8, 'full+max', '#d62728'), (9, 'coreset+max', '#ff7f0e')]
     for j, (idx, name, color) in enumerate(series):
-        ax.bar(x + (j - 1.5) * w, [r[idx] for r in class_rows], w,
-               label=name, color=color)
+        xs = [i + (j - 1.5) * w for i in x]
+        ys = [r[idx] for r in class_rows]
+        ax.bar(xs, ys, w, label=name, color=color)
+        for xi, yi in zip(xs, ys):
+            ax.text(xi, yi + 0.008, f'{yi:.2f}', ha='center', fontsize=7, rotation=90)
     ax.set_xticks(x)
     ax.set_xticklabels([r[0] for r in class_rows], rotation=20)
-    ax.set_ylim(0.5, 1.05)
+    ax.set_ylim(0.4, 1.1)   # 下界留足：dowel coreset 档 0.43，别剪没了
     ax.set_ylabel('image AUROC')
     ax.set_title('10 classes x {full, coreset 0.5%} x {top1%, max}')
     ax.legend(ncol=2)
